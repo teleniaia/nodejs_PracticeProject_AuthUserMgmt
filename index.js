@@ -29,7 +29,9 @@ const authenticatedUser = (username,password)=>{
 
 const app = express();
 
-app.use(session({secret:"fingerpint"},resave=true,saveUninitialized=true));
+app.use(express.json());
+
+app.use(session({secret:"fingerpint"}))
 
 app.use(express.json());
 
@@ -61,7 +63,7 @@ app.post("/login", (req,res) => {
   if (authenticatedUser(username,password)) {
     let accessToken = jwt.sign({
       data: password
-    }, 'access', { expiresIn: 60 * 60 });
+    }, 'access', { expiresIn: 60 });
 
     req.session.authorization = {
       accessToken,username
@@ -76,15 +78,18 @@ app.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  if (username && password) {
-    if (!doesExist(username)) { 
-      users.push({"username":username,"password":password});
-      return res.status(200).json({message: "User successfully registred. Now you can login"});
-    } else {
-      return res.status(404).json({message: "User already exists!"});    
-    }
-  } 
-  return res.status(404).json({message: "Unable to register user."});
+    if (username && password) {
+        if (!doesExist(username)) { 
+        users.push({"username":username,"password":password});
+        return res.status(200).json({message: "User successfully registred. Now you can login"});
+        } 
+        else {
+        return res.status(404).json({message: "User already exists!"});    
+        }
+    } 
+    else {
+        return res.status(404).json({message: "Unable to register user."})
+    };
 });
 
 
